@@ -1,0 +1,2 @@
+/home/xcucurull/Documents/FACIL/src/approach/icarl.py:32: UserWarning: Warning: iCaRL is expected to use exemplars. Check documentation.
+  warnings.warn("Warning: iCaRL is expected to use exemplars. Check documentation.")

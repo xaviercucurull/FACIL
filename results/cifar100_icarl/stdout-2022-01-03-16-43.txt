@@ -1,0 +1,9 @@
+Files already downloaded and verified
+Files already downloaded and verified
+[(0, 25), (1, 25), (2, 25), (3, 25)]
+************************************************************************************************************
+Task  0
+************************************************************************************************************
+| Epoch   1, time=  6.6s | Train: skip eval | Valid: time=  0.3s loss=2.531, TAw acc= 21.6% | *
+| Epoch   2, time=  4.0s | Train: skip eval | Valid: time=  0.3s loss=2.460, TAw acc= 23.5% | *
+| Epoch   3, time=  4.1s | Train: skip eval | Valid: time=  0.3s loss=2.353, TAw acc= 28.3% | *

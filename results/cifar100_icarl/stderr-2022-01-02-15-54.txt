@@ -1,0 +1,28 @@
+Traceback (most recent call last):
+  File "main_incremental.py", line 316, in <module>
+    main()
+  File "main_incremental.py", line 264, in main
+    appr.train(t, trn_loader[t], val_loader[t])
+  File "/home/xcucurull/Documents/FACIL/src/approach/incremental_learning.py", line 56, in train
+    self.train_loop(t, trn_loader, val_loader)
+  File "/home/xcucurull/Documents/FACIL/src/approach/icarl.py", line 115, in train_loop
+    super().train_loop(t, trn_loader, val_loader)
+  File "/home/xcucurull/Documents/FACIL/src/approach/incremental_learning.py", line 111, in train_loop
+    self.train_epoch(t, trn_loader)
+  File "/home/xcucurull/Documents/FACIL/src/approach/icarl.py", line 145, in train_epoch
+    outputs = self.model(images.to(self.device))
+  File "/usr/lib/python3/dist-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/xcucurull/Documents/FACIL/src/networks/network.py", line 57, in forward
+    x = self.model(x)
+  File "/usr/lib/python3/dist-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/xcucurull/Documents/FACIL/src/networks/resnet32.py", line 99, in forward
+    x = self.relu(self.bn1(self.conv1(x)))
+  File "/usr/lib/python3/dist-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/usr/lib/python3/dist-packages/torch/nn/modules/batchnorm.py", line 167, in forward
+    return F.batch_norm(
+  File "/usr/lib/python3/dist-packages/torch/nn/functional.py", line 2281, in batch_norm
+    return torch.batch_norm(
+RuntimeError: cuDNN error: CUDNN_STATUS_EXECUTION_FAILED

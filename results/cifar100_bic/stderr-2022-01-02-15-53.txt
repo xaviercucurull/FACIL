@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "main_incremental.py", line 316, in <module>
+    main()
+  File "main_incremental.py", line 211, in main
+    appr = Appr(net, device, **appr_kwargs)
+  File "/home/xcucurull/Documents/FACIL/src/approach/bic.py", line 43, in __init__
+    assert (have_exemplars > 0), 'Error: BiC needs exemplars.'
+AssertionError: Error: BiC needs exemplars.
