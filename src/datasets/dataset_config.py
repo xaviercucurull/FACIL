@@ -3,6 +3,9 @@ from os.path import join
 _BASE_DATA_PATH = "../data"
 
 dataset_config = {
+    'unipd': {
+        'path': join(_BASE_DATA_PATH, 'unipd')
+    },
     'mnist': {
         'path': join(_BASE_DATA_PATH, 'mnist'),
         'normalize': ((0.1307,), (0.3081,)),
