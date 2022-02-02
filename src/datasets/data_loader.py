@@ -10,6 +10,8 @@ from . import base_dataset as basedat
 from . import memory_dataset as memd
 from .dataset_config import dataset_config
 
+from . import unipd
+
 
 def get_loaders(datasets, num_tasks, nc_first_task, batch_size, num_workers, pin_memory, validation=.1):
     """Apply transformations to Datasets and create the DataLoaders for each task"""
@@ -65,6 +67,7 @@ def get_datasets(dataset, path, num_tasks, nc_first_task, validation, trn_transf
     """Extract datasets and create Dataset class"""
 
     trn_dset, val_dset, tst_dset = [], [], []
+    is_images_dataset = True
 
     if 'mnist' in dataset:
         tvmnist_trn = TorchVisionMNIST(path, train=True, download=True)
@@ -134,6 +137,24 @@ def get_datasets(dataset, path, num_tasks, nc_first_task, validation, trn_transf
         # set dataset type
         Dataset = memd.MemoryDataset
 
+    elif 'unipd' in dataset:
+        # load data
+        training_set = unipd.Senz3D('train', path)
+        # validation_set = unipd.Senz3D('val', path)
+        test_set = unipd.Senz3D('test', path)
+
+        trn_data = {'x': training_set.features, 'y': training_set.targets}
+        tst_data = {'x': test_set.features, 'y': test_set.targets}
+
+        # compute splits
+        all_data, taskcla, class_indices = memd.get_data(trn_data, tst_data, validation=validation,
+                                                         num_tasks=num_tasks, nc_first_task=nc_first_task,
+                                                         shuffle_classes=class_order is None, class_order=class_order)
+
+        # set dataset type
+        Dataset = memd.MemoryDataset
+        is_images_dataset = False            
+
     else:
         # read data paths and compute splits -- path needs to have a train.txt and a test.txt with image-label pairs
         all_data, taskcla, class_indices = basedat.get_data(path, num_tasks=num_tasks, nc_first_task=nc_first_task,
@@ -148,9 +169,9 @@ def get_datasets(dataset, path, num_tasks, nc_first_task, validation, trn_transf
         all_data[task]['trn']['y'] = [label + offset for label in all_data[task]['trn']['y']]
         all_data[task]['val']['y'] = [label + offset for label in all_data[task]['val']['y']]
         all_data[task]['tst']['y'] = [label + offset for label in all_data[task]['tst']['y']]
-        trn_dset.append(Dataset(all_data[task]['trn'], trn_transform, class_indices))
-        val_dset.append(Dataset(all_data[task]['val'], tst_transform, class_indices))
-        tst_dset.append(Dataset(all_data[task]['tst'], tst_transform, class_indices))
+        trn_dset.append(Dataset(all_data[task]['trn'], trn_transform, class_indices, is_images_dataset))
+        val_dset.append(Dataset(all_data[task]['val'], tst_transform, class_indices, is_images_dataset))
+        tst_dset.append(Dataset(all_data[task]['tst'], tst_transform, class_indices, is_images_dataset))
         offset += taskcla[task][1]
 
     return trn_dset, val_dset, tst_dset, taskcla

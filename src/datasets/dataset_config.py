@@ -1,10 +1,12 @@
 from os.path import join
+import pathlib
 
-_BASE_DATA_PATH = "../data"
+
+_BASE_DATA_PATH = str(pathlib.Path(__file__).parent.parent.parent.joinpath('data'))
 
 dataset_config = {
     'unipd': {
-        'path': join(_BASE_DATA_PATH, 'unipd')
+        'path': join(_BASE_DATA_PATH, 'UniPd')
     },
     'mnist': {
         'path': join(_BASE_DATA_PATH, 'mnist'),

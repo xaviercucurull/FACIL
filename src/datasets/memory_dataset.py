@@ -2,17 +2,18 @@ import random
 import numpy as np
 from PIL import Image
 from torch.utils.data import Dataset
-
+import torch
 
 class MemoryDataset(Dataset):
     """Characterizes a dataset for PyTorch -- this dataset pre-loads all images in memory"""
 
-    def __init__(self, data, transform, class_indices=None):
+    def __init__(self, data, transform, class_indices=None, is_img_dataset=True):
         """Initialization"""
         self.labels = data['y']
         self.images = data['x']
         self.transform = transform
         self.class_indices = class_indices
+        self.is_img_dataset = is_img_dataset
 
     def __len__(self):
         """Denotes the total number of samples"""
@@ -20,8 +21,13 @@ class MemoryDataset(Dataset):
 
     def __getitem__(self, index):
         """Generates one sample of data"""
-        x = Image.fromarray(self.images[index])
-        x = self.transform(x)
+        if self.is_img_dataset:
+            x = Image.fromarray(self.images[index])
+            x = self.transform(x)
+        else:
+            x = self.images[index]
+            x = torch.from_numpy(x)
+
         y = self.labels[index]
         return x, y
 
