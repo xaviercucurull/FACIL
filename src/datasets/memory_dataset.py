@@ -26,7 +26,9 @@ class MemoryDataset(Dataset):
             x = self.transform(x)
         else:
             x = self.images[index]
-            x = torch.from_numpy(x)
+            if type(x) is not torch.Tensor:
+                x = torch.from_numpy(x)
+            # TODO: transformations?
 
         y = self.labels[index]
         return x, y

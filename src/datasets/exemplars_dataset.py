@@ -7,9 +7,9 @@ from datasets.memory_dataset import MemoryDataset
 class ExemplarsDataset(MemoryDataset):
     """Exemplar storage for approaches with an interface of Dataset"""
 
-    def __init__(self, transform, class_indices,
+    def __init__(self, transform, class_indices, is_img_dataset=True,
                  num_exemplars=0, num_exemplars_per_class=0, exemplar_selection='random'):
-        super().__init__({'x': [], 'y': []}, transform, class_indices=class_indices)
+        super().__init__({'x': [], 'y': []}, transform, class_indices=class_indices, is_img_dataset=is_img_dataset)
         self.max_num_exemplars_per_class = num_exemplars_per_class
         self.max_num_exemplars = num_exemplars
         assert (num_exemplars_per_class == 0) or (num_exemplars == 0), 'Cannot use both limits at once!'
