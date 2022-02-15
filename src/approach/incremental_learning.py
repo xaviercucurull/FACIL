@@ -175,7 +175,7 @@ class Inc_Learning_Appr:
             torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.clipgrad)
             self.optimizer.step()
 
-    def eval(self, t, val_loader):
+    def eval(self, t, val_loader, return_preds=False):
         """Contains the evaluation code"""
         with torch.no_grad():
             total_loss, total_acc_taw, total_acc_tag, total_num = 0, 0, 0, 0
@@ -184,15 +184,19 @@ class Inc_Learning_Appr:
                 # Forward current model
                 outputs = self.model(images.to(self.device))
                 loss = self.criterion(t, outputs, targets.to(self.device))
-                hits_taw, hits_tag = self.calculate_metrics(outputs, targets)
+                hits_taw, hits_tag, pred = self.calculate_metrics(outputs, targets, True)
                 # Log
                 total_loss += loss.item() * len(targets)
                 total_acc_taw += hits_taw.sum().item()
                 total_acc_tag += hits_tag.sum().item()
                 total_num += len(targets)
-        return total_loss / total_num, total_acc_taw / total_num, total_acc_tag / total_num
 
-    def calculate_metrics(self, outputs, targets):
+        if return_preds:
+            return total_loss / total_num, total_acc_taw / total_num, total_acc_tag / total_num, pred
+        else:
+            return total_loss / total_num, total_acc_taw / total_num, total_acc_tag / total_num
+
+    def calculate_metrics(self, outputs, targets, return_preds=False):
         """Contains the main Task-Aware and Task-Agnostic metrics"""
         pred = torch.zeros_like(targets.to(self.device))
         # Task-Aware Multi-Head
@@ -207,7 +211,11 @@ class Inc_Learning_Appr:
         else:
             pred = torch.cat(outputs, dim=1).argmax(1)
         hits_tag = (pred == targets.to(self.device)).float()
-        return hits_taw, hits_tag
+
+        if return_preds:
+            return hits_taw, hits_tag, pred
+        else:
+            return hits_taw, hits_tag
 
     def criterion(self, t, outputs, targets):
         """Returns the loss value"""

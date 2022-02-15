@@ -45,7 +45,7 @@ class Appr(Inc_Learning_Appr):
         return parser.parse_known_args(args)
 
     # Algorithm 1: iCaRL NCM Classify
-    def classify(self, task, features, targets):
+    def classify(self, task, features, targets, return_preds=False):
         # expand means to all batch images
         means = torch.stack(self.exemplar_means)
         means = torch.stack([means] * features.shape[0])
@@ -64,7 +64,11 @@ class Appr(Inc_Learning_Appr):
         # Task-Agnostic Multi-Head
         pred = dists.argmin(1)
         hits_tag = (pred == targets.to(self.device)).float()
-        return hits_taw, hits_tag
+
+        if return_preds:
+            return hits_taw, hits_tag, pred
+        else:
+            return hits_taw, hits_tag
 
     def compute_mean_of_exemplars(self, trn_loader, transform):
         # change transforms to evaluation for this calculation
@@ -150,8 +154,11 @@ class Appr(Inc_Learning_Appr):
             torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.clipgrad)
             self.optimizer.step()
 
-    def eval(self, t, val_loader):
+    def eval(self, t, val_loader, return_preds=False):
         """Contains the evaluation code"""
+        all_preds = []
+        all_targets = []
+
         with torch.no_grad():
             total_loss, total_acc_taw, total_acc_tag, total_num = 0, 0, 0, 0
             self.model.eval()
@@ -165,15 +172,23 @@ class Appr(Inc_Learning_Appr):
                 loss = self.criterion(t, outputs, targets.to(self.device), outputs_old)
                 # during training, the usual accuracy is computed on the outputs
                 if not self.exemplar_means:
-                    hits_taw, hits_tag = self.calculate_metrics(outputs, targets)
+                    hits_taw, hits_tag, pred = self.calculate_metrics(outputs, targets, True)
                 else:
-                    hits_taw, hits_tag = self.classify(t, feats, targets)
+                    hits_taw, hits_tag, pred = self.classify(t, feats, targets, True)
                 # Log
                 total_loss += loss.item() * len(targets)
                 total_acc_taw += hits_taw.sum().item()
                 total_acc_tag += hits_tag.sum().item()
                 total_num += len(targets)
-        return total_loss / total_num, total_acc_taw / total_num, total_acc_tag / total_num
+                
+                # Save predictions
+                all_preds.extend(pred.tolist())
+                all_targets.extend(targets.tolist())
+
+        if return_preds:
+            return total_loss / total_num, total_acc_taw / total_num, total_acc_tag / total_num, all_targets, all_preds
+        else:
+            return total_loss / total_num, total_acc_taw / total_num, total_acc_tag / total_num
 
     # Algorithm 3: classification and distillation terms -- original formulation has no trade-off parameter (lamb=1)
     def criterion(self, t, outputs, targets, outputs_old=None):
